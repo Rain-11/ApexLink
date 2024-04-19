@@ -47,25 +47,25 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     private final UserConverter userConverter;
 
     @Override
-    public long userRegister(String userAccount, String userPassword, String checkPassword) {
+    public long userRegister(String email, String userPassword, String verificationCode) {
         // 1. 校验
-        if (StringUtils.isAnyBlank(userAccount, userPassword, checkPassword)) {
+        if (StringUtils.isAnyBlank(email, userPassword, verificationCode)) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR, "参数为空");
         }
-        if (userAccount.length() < 4) {
+        if (email.length() < 4) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR, "用户账号过短");
         }
-        if (userPassword.length() < 8 || checkPassword.length() < 8) {
+        if (userPassword.length() < 8 || verificationCode.length() < 8) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR, "用户密码过短");
         }
         // 密码和校验密码相同
-        if (!userPassword.equals(checkPassword)) {
+        if (!userPassword.equals(verificationCode)) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR, "两次输入的密码不一致");
         }
-        synchronized (userAccount.intern()) {
+        synchronized (email.intern()) {
             // 账户不能重复
             QueryWrapper<User> queryWrapper = new QueryWrapper<>();
-            queryWrapper.eq("user_account", userAccount);
+            queryWrapper.eq("user_account", email);
             long count = this.baseMapper.selectCount(queryWrapper);
             if (count > 0) {
                 throw new BusinessException(ErrorCode.PARAMS_ERROR, "账号重复");
@@ -74,7 +74,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
             String encryptPassword = DigestUtils.md5DigestAsHex((SALT + userPassword).getBytes());
             // 3. 插入数据
             User user = new User();
-            user.setUserAccount(userAccount);
+            user.setEmail(email);
             user.setUserPassword(encryptPassword);
             boolean saveResult = this.save(user);
             if (!saveResult) {
@@ -157,8 +157,6 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
             throw new BusinessException(ErrorCode.PARAMS_ERROR, "请求参数为空");
         }
         Long id = userQueryRequest.getId();
-        String unionId = userQueryRequest.getUnionId();
-        String mpOpenId = userQueryRequest.getMpOpenId();
         String userName = userQueryRequest.getUserName();
         String userProfile = userQueryRequest.getUserProfile();
         String userRole = userQueryRequest.getUserRole();
@@ -166,8 +164,6 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         String sortOrder = userQueryRequest.getSortOrder();
         QueryWrapper<User> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq(id != null, "id", id);
-        queryWrapper.eq(StringUtils.isNotBlank(unionId), "unionId", unionId);
-        queryWrapper.eq(StringUtils.isNotBlank(mpOpenId), "mpOpenId", mpOpenId);
         queryWrapper.eq(StringUtils.isNotBlank(userRole), "userRole", userRole);
         queryWrapper.like(StringUtils.isNotBlank(userProfile), "userProfile", userProfile);
         queryWrapper.like(StringUtils.isNotBlank(userName), "userName", userName);
@@ -192,7 +188,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     @Override
     public Long addUser(UserAddRequest userAddRequest) {
         LambdaQueryWrapper<User> userLambdaQueryWrapper = new LambdaQueryWrapper<>();
-        userLambdaQueryWrapper.eq(User::getUserAccount, userAddRequest.getUserAccount());
+        userLambdaQueryWrapper.eq(User::getEmail, userAddRequest.getEmail());
         ThrowUtils.throwIf(count(userLambdaQueryWrapper) != 0, ErrorCode.OPERATION_ERROR,"账号已存在");
         User user = userConverter.userAddRequestConverter(userAddRequest);
         // 默认密码 12345678

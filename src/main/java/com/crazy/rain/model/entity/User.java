@@ -17,11 +17,6 @@ public class User implements Serializable {
     private Long id;
 
     /**
-     * 用户账号
-     */
-    private String userAccount;
-
-    /**
      * 用户密码
      */
     private String userPassword;
@@ -35,6 +30,10 @@ public class User implements Serializable {
      * 用户头像
      */
     private String userAvatar;
+    /**
+     * 用户邮箱
+     */
+    private String email;
 
     /**
      * 用户简介

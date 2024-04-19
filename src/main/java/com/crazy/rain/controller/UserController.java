@@ -49,13 +49,13 @@ public class UserController {
         if (userRegisterRequest == null) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
-        String userAccount = userRegisterRequest.getUserAccount();
+        String email = userRegisterRequest.getEmail();
         String userPassword = userRegisterRequest.getUserPassword();
-        String checkPassword = userRegisterRequest.getCheckPassword();
-        if (StringUtils.isAnyBlank(userAccount, userPassword, checkPassword)) {
+        String verificationCode = userRegisterRequest.getVerificationCode();
+        if (StringUtils.isAnyBlank(email, userPassword, verificationCode)) {
             return null;
         }
-        long result = userService.userRegister(userAccount, userPassword, checkPassword);
+        long result = userService.userRegister(email, userPassword, verificationCode);
         return ResultUtils.success(result);
     }
 
@@ -68,12 +68,12 @@ public class UserController {
         if (userLoginRequest == null) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
-        String userAccount = userLoginRequest.getUserAccount();
+        String email = userLoginRequest.getEmail();
         String userPassword = userLoginRequest.getUserPassword();
-        if (StringUtils.isAnyBlank(userAccount, userPassword)) {
+        if (StringUtils.isAnyBlank(email, userPassword)) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
-        LoginUserVO loginUserVO = userService.userLogin(userAccount, userPassword, request);
+        LoginUserVO loginUserVO = userService.userLogin(email, userPassword, request);
         return ResultUtils.success(loginUserVO);
     }
 
