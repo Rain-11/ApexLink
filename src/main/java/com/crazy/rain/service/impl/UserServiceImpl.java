@@ -23,12 +23,15 @@ import com.crazy.rain.utils.UserInfoUtil;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.stereotype.Service;
 import org.springframework.util.DigestUtils;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import static com.crazy.rain.constant.UserConstant.USER_LOGIN_STATE;
@@ -48,27 +51,27 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     private final UserConverter userConverter;
     private final EmailUtils emailUtils;
 
+    private final RedisTemplate<String, Object> redisTemplate;
+
     @Override
     public long userRegister(String email, String userPassword, String verificationCode) {
         // 1. 校验
         if (StringUtils.isAnyBlank(email, userPassword, verificationCode)) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR, "参数为空");
         }
-        if (email.length() < 4) {
-            throw new BusinessException(ErrorCode.PARAMS_ERROR, "用户账号过短");
+        if (!emailUtils.isValidEmail(email)) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "邮箱格式错误");
         }
-        if (userPassword.length() < 8 || verificationCode.length() < 8) {
+        if (userPassword.length() < 8) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR, "用户密码过短");
         }
-        // 密码和校验密码相同
-        if (!userPassword.equals(verificationCode)) {
-            throw new BusinessException(ErrorCode.PARAMS_ERROR, "两次输入的密码不一致");
-        }
+        String code = String.valueOf(redisTemplate.opsForValue().get(email));
+        ThrowUtils.throwIf(!code.equals(verificationCode), ErrorCode.PARAMS_ERROR, "验证码错误");
         synchronized (email.intern()) {
             // 账户不能重复
-            QueryWrapper<User> queryWrapper = new QueryWrapper<>();
-            queryWrapper.eq("user_account", email);
-            long count = this.baseMapper.selectCount(queryWrapper);
+            LambdaQueryWrapper<User> userLambdaQueryWrapper = new LambdaQueryWrapper<>();
+            userLambdaQueryWrapper.eq(User::getEmail, email);
+            long count = this.baseMapper.selectCount(userLambdaQueryWrapper);
             if (count > 0) {
                 throw new BusinessException(ErrorCode.PARAMS_ERROR, "账号重复");
             }
@@ -87,13 +90,13 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     }
 
     @Override
-    public LoginUserVO userLogin(String email, String userPassword, HttpServletRequest request) {
+    public LoginUserVO userLogin(String email, String userPassword, String verificationCode, HttpServletRequest request) {
         // 1. 校验
-        if (StringUtils.isAnyBlank(email, userPassword)) {
+        if (StringUtils.isAnyBlank(email, userPassword, verificationCode)) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR, "参数为空");
         }
-        if (email.length() < 4) {
-            throw new BusinessException(ErrorCode.PARAMS_ERROR, "账号错误");
+        if (!emailUtils.isValidEmail(email)) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "邮箱格式错误");
         }
         if (userPassword.length() < 8) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR, "密码错误");
@@ -203,7 +206,9 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     @Override
     public Integer sendVerificationCode(String email) {
         int code = emailUtils.sendVerificationCode(email);
-
+        //缓存邮箱验证码
+        ValueOperations<String, Object> stringObjectValueOperations = redisTemplate.opsForValue();
+        stringObjectValueOperations.set(email, code, 5, TimeUnit.MINUTES);
         return code;
     }
 }

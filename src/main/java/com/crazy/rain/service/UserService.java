@@ -29,11 +29,12 @@ public interface UserService extends IService<User> {
     /**
      * 用户登录
      *
-     * @param email  用户账户
-     * @param userPassword 用户密码
+     * @param email            用户账户
+     * @param userPassword     用户密码
+     * @param verificationCode
      * @return 脱敏后的用户信息
      */
-    LoginUserVO userLogin(String email, String userPassword, HttpServletRequest request);
+    LoginUserVO userLogin(String email, String userPassword, String verificationCode, HttpServletRequest request);
 
 
     /**

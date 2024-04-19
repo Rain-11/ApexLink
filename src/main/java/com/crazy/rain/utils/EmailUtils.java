@@ -6,6 +6,7 @@ import org.springframework.mail.SimpleMailMessage;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
+import java.util.regex.Pattern;
 
 /**
  * @ClassName: EmailUtils
@@ -30,5 +31,12 @@ public class EmailUtils {
         msg.setText("您的邮箱验证码为" + code);
         mailSender.send(msg);
         return code;
+    }
+
+    public boolean isValidEmail(String email) {
+        if ((email != null) && (!email.isEmpty())) {
+            return Pattern.matches("^(\\w+([-.][A-Za-z0-9]+)*){3,18}@\\w+([-.][A-Za-z0-9]+)*\\.\\w+([-.][A-Za-z0-9]+)*$", email);
+        }
+        return false;
     }
 }
