@@ -17,6 +17,7 @@ import com.crazy.rain.model.entity.User;
 import com.crazy.rain.model.vo.LoginUserVO;
 import com.crazy.rain.model.vo.UserVO;
 import com.crazy.rain.service.UserService;
+import com.crazy.rain.utils.EmailUtils;
 import com.crazy.rain.utils.SqlUtils;
 import com.crazy.rain.utils.UserInfoUtil;
 import lombok.AllArgsConstructor;
@@ -45,6 +46,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     private static final String DEFAULT_PASSWORD = "12345678";
     private final UserInfoUtil userInfoUtil;
     private final UserConverter userConverter;
+    private final EmailUtils emailUtils;
 
     @Override
     public long userRegister(String email, String userPassword, String verificationCode) {
@@ -85,12 +87,12 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     }
 
     @Override
-    public LoginUserVO userLogin(String userAccount, String userPassword, HttpServletRequest request) {
+    public LoginUserVO userLogin(String email, String userPassword, HttpServletRequest request) {
         // 1. 校验
-        if (StringUtils.isAnyBlank(userAccount, userPassword)) {
+        if (StringUtils.isAnyBlank(email, userPassword)) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR, "参数为空");
         }
-        if (userAccount.length() < 4) {
+        if (email.length() < 4) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR, "账号错误");
         }
         if (userPassword.length() < 8) {
@@ -99,13 +101,12 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         // 2. 加密
         String encryptPassword = DigestUtils.md5DigestAsHex((SALT + userPassword).getBytes());
         // 查询用户是否存在
-        QueryWrapper<User> queryWrapper = new QueryWrapper<>();
-        queryWrapper.eq("user_account", userAccount);
-        queryWrapper.eq("user_password", encryptPassword);
-        User user = this.baseMapper.selectOne(queryWrapper);
+        LambdaQueryWrapper<User> userLambdaQueryWrapper = new LambdaQueryWrapper<>();
+        userLambdaQueryWrapper.eq(User::getEmail, email).eq(User::getUserPassword, encryptPassword);
+        User user = this.baseMapper.selectOne(userLambdaQueryWrapper);
         // 用户不存在
         if (user == null) {
-            log.info("user login failed, userAccount cannot match userPassword");
+            log.info("用户不存在");
             throw new BusinessException(ErrorCode.PARAMS_ERROR, "用户不存在或密码错误");
         }
         // 3. 记录用户的登录态
@@ -189,7 +190,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     public Long addUser(UserAddRequest userAddRequest) {
         LambdaQueryWrapper<User> userLambdaQueryWrapper = new LambdaQueryWrapper<>();
         userLambdaQueryWrapper.eq(User::getEmail, userAddRequest.getEmail());
-        ThrowUtils.throwIf(count(userLambdaQueryWrapper) != 0, ErrorCode.OPERATION_ERROR,"账号已存在");
+        ThrowUtils.throwIf(count(userLambdaQueryWrapper) != 0, ErrorCode.OPERATION_ERROR, "邮箱已存在");
         User user = userConverter.userAddRequestConverter(userAddRequest);
         // 默认密码 12345678
         String encryptPassword = DigestUtils.md5DigestAsHex((SALT + DEFAULT_PASSWORD).getBytes());
@@ -197,5 +198,12 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         boolean result = this.save(user);
         ThrowUtils.throwIf(!result, ErrorCode.OPERATION_ERROR);
         return user.getId();
+    }
+
+    @Override
+    public Integer sendVerificationCode(String email) {
+        int code = emailUtils.sendVerificationCode(email);
+
+        return code;
     }
 }

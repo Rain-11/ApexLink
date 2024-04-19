@@ -5,7 +5,7 @@ import com.crazy.rain.annotation.AuthCheck;
 import com.crazy.rain.common.BaseResponse;
 import com.crazy.rain.common.DeleteRequest;
 import com.crazy.rain.common.ErrorCode;
-import com.crazy.rain.common.ResultUtils;
+import com.crazy.rain.common.ResultUtil;
 import com.crazy.rain.constant.UserConstant;
 import com.crazy.rain.converter.UserConverter;
 import com.crazy.rain.exception.BusinessException;
@@ -56,7 +56,7 @@ public class UserController {
             return null;
         }
         long result = userService.userRegister(email, userPassword, verificationCode);
-        return ResultUtils.success(result);
+        return ResultUtil.success(result);
     }
 
     /**
@@ -74,7 +74,7 @@ public class UserController {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
         LoginUserVO loginUserVO = userService.userLogin(email, userPassword, request);
-        return ResultUtils.success(loginUserVO);
+        return ResultUtil.success(loginUserVO);
     }
 
     /**
@@ -87,7 +87,7 @@ public class UserController {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
         boolean result = userService.userLogout(request);
-        return ResultUtils.success(result);
+        return ResultUtil.success(result);
     }
 
     /**
@@ -96,7 +96,7 @@ public class UserController {
     @GetMapping("/get/login")
     @Operation(summary = "获取当前登录用户")
     public BaseResponse<LoginUserVO> getLoginUser() {
-        return ResultUtils.success(userService.getLoginUser());
+        return ResultUtil.success(userService.getLoginUser());
     }
 
     /**
@@ -109,7 +109,7 @@ public class UserController {
         if (userAddRequest == null) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
-        return ResultUtils.success(userService.addUser(userAddRequest));
+        return ResultUtil.success(userService.addUser(userAddRequest));
     }
 
     /**
@@ -123,7 +123,7 @@ public class UserController {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
         boolean b = userService.removeById(deleteRequest.getId());
-        return ResultUtils.success(b);
+        return ResultUtil.success(b);
     }
 
     /**
@@ -139,7 +139,7 @@ public class UserController {
         User user = userConverter.userAddRequestConverter(userUpdateRequest);
         boolean result = userService.updateById(user);
         ThrowUtils.throwIf(!result, ErrorCode.OPERATION_ERROR);
-        return ResultUtils.success(true);
+        return ResultUtil.success(true);
     }
 
     /**
@@ -154,7 +154,7 @@ public class UserController {
         }
         User user = userService.getById(id);
         ThrowUtils.throwIf(user == null, ErrorCode.NOT_FOUND_ERROR);
-        return ResultUtils.success(user);
+        return ResultUtil.success(user);
     }
 
     /**
@@ -165,7 +165,7 @@ public class UserController {
     public BaseResponse<UserVO> getUserVOById(long id) {
         BaseResponse<User> response = getUserById(id);
         User user = response.getData();
-        return ResultUtils.success(userService.getUserVO(user));
+        return ResultUtil.success(userService.getUserVO(user));
     }
 
     /**
@@ -179,7 +179,7 @@ public class UserController {
         long size = userQueryRequest.getPageSize();
         Page<User> userPage = userService.page(new Page<>(current, size),
                 userService.getQueryWrapper(userQueryRequest));
-        return ResultUtils.success(userPage);
+        return ResultUtil.success(userPage);
     }
 
     /**
@@ -200,7 +200,7 @@ public class UserController {
         Page<UserVO> userVOPage = new Page<>(current, size, userPage.getTotal());
         List<UserVO> userVO = userService.getUserVO(userPage.getRecords());
         userVOPage.setRecords(userVO);
-        return ResultUtils.success(userVOPage);
+        return ResultUtil.success(userVOPage);
     }
 
     // endregion
@@ -215,6 +215,16 @@ public class UserController {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
         userService.updateMyUser(userUpdateMyRequest);
-        return ResultUtils.success(true);
+        return ResultUtil.success(true);
+    }
+
+    /**
+     * 发送邮箱验证码
+     */
+    @GetMapping("/email/{email}")
+    @Operation(summary = "发送验证码")
+    public BaseResponse<Integer> sendVerificationCode(@PathVariable("email") String email) {
+        ThrowUtils.throwIf(StringUtils.isBlank(email), ErrorCode.NOT_FOUND_ERROR, "邮箱为空");
+        return ResultUtil.success(userService.sendVerificationCode(email));
     }
 }

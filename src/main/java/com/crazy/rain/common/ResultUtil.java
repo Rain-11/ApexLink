@@ -5,9 +5,9 @@ package com.crazy.rain.common;
  * @Description: 返回工具类
  * @author: CrazyRain
  */
-public class ResultUtils {
+public class ResultUtil {
 
-    private ResultUtils() {
+    private ResultUtil() {
     }
 
     /**
