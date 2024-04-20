@@ -70,11 +70,10 @@ public class UserController {
         }
         String email = userLoginRequest.getEmail();
         String userPassword = userLoginRequest.getUserPassword();
-        String verificationCode = userLoginRequest.getVerificationCode();
-        if (StringUtils.isAnyBlank(email, userPassword, verificationCode)) {
+        if (StringUtils.isAnyBlank(email, userPassword)) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
-        LoginUserVO loginUserVO = userService.userLogin(email, userPassword, verificationCode, request);
+        LoginUserVO loginUserVO = userService.userLogin(email, userPassword, request);
         return ResultUtil.success(loginUserVO);
     }
 

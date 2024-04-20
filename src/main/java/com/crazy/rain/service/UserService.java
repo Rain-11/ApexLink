@@ -19,8 +19,8 @@ public interface UserService extends IService<User> {
     /**
      * 用户注册
      *
-     * @param email   用户邮箱
-     * @param userPassword  用户密码
+     * @param email            用户邮箱
+     * @param userPassword     用户密码
      * @param verificationCode 验证码
      * @return 新用户 id
      */
@@ -31,10 +31,9 @@ public interface UserService extends IService<User> {
      *
      * @param email            用户账户
      * @param userPassword     用户密码
-     * @param verificationCode
      * @return 脱敏后的用户信息
      */
-    LoginUserVO userLogin(String email, String userPassword, String verificationCode, HttpServletRequest request);
+    LoginUserVO userLogin(String email, String userPassword, HttpServletRequest request);
 
 
     /**
@@ -74,12 +73,14 @@ public interface UserService extends IService<User> {
 
     /**
      * 创建用户
+     *
      * @param userAddRequest 添加用户参数
      */
     Long addUser(UserAddRequest userAddRequest);
 
     /**
      * 发送邮箱验证码
+     *
      * @param email 邮箱
      * @return 验证码
      */
