@@ -1,22 +1,18 @@
-package com.crazy.rain.model.entity;
+package com.crazy.rain.model.vo;
 
-import com.baomidou.mybatisplus.annotation.*;
 import lombok.Data;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
 
 /**
- * 
  * @TableName interface_info
  */
-@TableName(value ="interface_info")
 @Data
-public class InterfaceInfo implements Serializable {
+public class InterfaceInfoVo implements Serializable {
     /**
      * 接口id
      */
-    @TableId
     private Long id;
 
     /**
@@ -55,29 +51,28 @@ public class InterfaceInfo implements Serializable {
     private String method;
 
     /**
-     * 创建人
+     * 创建人姓名
+     */
+    private String userName;
+    /**
+     * 创建人Id
      */
     private Long userId;
 
     /**
      * 创建时间
      */
-    @TableField(fill = FieldFill.INSERT)
     private LocalDateTime createTime;
 
     /**
      * 更新时间
      */
-    @TableField(fill = FieldFill.INSERT_UPDATE)
     private LocalDateTime updateTime;
 
     /**
      * 逻辑删除0-未删，1-已删除
      */
-    @TableLogic
     private Integer isDelete;
 
-    @TableField(exist = false)
-    private static final long serialVersionUID = 1L;
 
 }

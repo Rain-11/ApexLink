@@ -18,6 +18,13 @@ public class ResultUtil {
     }
 
     /**
+     * 成功
+     */
+    public static <T> BaseResponse<T> success() {
+        return new BaseResponse<>(200, null, "ok");
+    }
+
+    /**
      * 失败
      */
     public static BaseResponse<Void> error(ErrorCode errorCode) {

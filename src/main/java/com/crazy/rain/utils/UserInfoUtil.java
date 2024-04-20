@@ -30,7 +30,6 @@ public class UserInfoUtil {
     public static User getUserInfo() {
         // 先判断是否已登录
         User currentUser = (User) request.getSession().getAttribute(USER_LOGIN_STATE);
-        log.info("获取用户信息:{}", currentUser);
         if (currentUser == null || currentUser.getId() == null) {
             throw new BusinessException(ErrorCode.NOT_LOGIN_ERROR);
         }

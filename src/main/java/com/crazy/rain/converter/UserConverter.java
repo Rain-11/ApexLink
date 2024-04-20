@@ -19,6 +19,7 @@ public interface UserConverter {
     User userAddRequestConverter(UserAddRequest userAddRequest);
 
     User userAddRequestConverter(UserUpdateRequest userUpdateRequest);
+
     User userUpdateMyRequestConverter(UserUpdateMyRequest userUpdateMyRequest);
 
     LoginUserVO loginUserVOConverter(User user);
