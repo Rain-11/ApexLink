@@ -3,6 +3,7 @@ package com.crazy.rain.service.impl;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.crazy.rain.common.ErrorCode;
+import com.crazy.rain.common.InterfaceStatusEnum;
 import com.crazy.rain.common.MethodEnum;
 import com.crazy.rain.constant.CommonConstant;
 import com.crazy.rain.converter.InterfaceConverter;
@@ -62,6 +63,8 @@ public class InterfaceInfoServiceImpl extends ServiceImpl<InterfaceInfoMapper, I
         String method = interfaceQueryDto.getMethod();
         String sortField = interfaceQueryDto.getSortField();
         String sortOrder = interfaceQueryDto.getSortOrder();
+        Integer status = interfaceQueryDto.getStatus();
+        InterfaceStatusEnum interfaceStatusEnum = InterfaceStatusEnum.getEnum(status);
         LambdaQueryWrapper<InterfaceInfo> interfaceInfoLambdaQueryWrapper = new LambdaQueryWrapper<>();
         interfaceInfoLambdaQueryWrapper.eq(id != null, InterfaceInfo::getId, id);
         interfaceInfoLambdaQueryWrapper.like(StringUtils.isNotBlank(name), InterfaceInfo::getName, name);
@@ -70,6 +73,9 @@ public class InterfaceInfoServiceImpl extends ServiceImpl<InterfaceInfoMapper, I
         interfaceInfoLambdaQueryWrapper.like(StringUtils.isNotBlank(requestHeader), InterfaceInfo::getRequestHeader, requestHeader);
         interfaceInfoLambdaQueryWrapper.like(StringUtils.isNotBlank(responseHeader), InterfaceInfo::getResponseHeader, responseHeader);
         interfaceInfoLambdaQueryWrapper.eq(StringUtils.isNotBlank(method), InterfaceInfo::getMethod, method);
+        if (interfaceStatusEnum != null) {
+            interfaceInfoLambdaQueryWrapper.eq(InterfaceInfo::getStatus, interfaceStatusEnum.getValue());
+        }
         interfaceInfoLambdaQueryWrapper.orderBy(
                 SqlUtils.validSortField(sortField),
                 sortOrder.equals(CommonConstant.SORT_ORDER_ASC),
@@ -82,6 +88,11 @@ public class InterfaceInfoServiceImpl extends ServiceImpl<InterfaceInfoMapper, I
     public Boolean modifyInterfaceInformation(InterfaceUpdateDto interfaceUpdateDto) {
         InterfaceInfo interfaceInfo = interfaceConverter.interfaceInfoConvert(interfaceUpdateDto);
         ThrowUtils.throwIf(interfaceInfo.getName().length() > 50, ErrorCode.PARAMS_ERROR, "接口名称过长");
+        Integer status = interfaceInfo.getStatus();
+        if (status != null) {
+            InterfaceStatusEnum interfaceStatusEnum = InterfaceStatusEnum.getEnum(status);
+            interfaceInfo.setStatus(interfaceStatusEnum.getValue());
+        }
         String method = interfaceInfo.getMethod();
         if (StringUtils.isNotBlank(method)) {
             MethodEnum methodEnum = MethodEnum.valueOf(method.toUpperCase());

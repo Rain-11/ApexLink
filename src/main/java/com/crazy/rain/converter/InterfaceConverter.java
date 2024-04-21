@@ -28,7 +28,6 @@ public interface InterfaceConverter {
 
     @Mapping(target = "userId", ignore = true)
     @Mapping(target = "updateTime", ignore = true)
-    @Mapping(target = "status", ignore = true)
     @Mapping(target = "isDelete", ignore = true)
     @Mapping(target = "createTime", ignore = true)
     InterfaceInfo interfaceInfoConvert(InterfaceUpdateDto interfaceUpdateDto);

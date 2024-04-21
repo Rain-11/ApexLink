@@ -48,4 +48,9 @@ public class InterfaceQueryDto extends PageRequest implements Serializable {
      * 请求方式
      */
     private String method;
+
+    /**
+     * 接口状态 0-关闭，1-开启
+     */
+    private Integer status;
 }

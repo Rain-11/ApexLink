@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.crazy.rain.annotation.AuthCheck;
 import com.crazy.rain.common.BaseResponse;
+import com.crazy.rain.common.DeleteRequest;
 import com.crazy.rain.common.ErrorCode;
 import com.crazy.rain.common.ResultUtil;
 import com.crazy.rain.converter.InterfaceConverter;
@@ -22,6 +23,7 @@ import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -51,8 +53,15 @@ public class InterfaceController {
     @DeleteMapping("/deleteInterfaceBasedOnID")
     @Operation(summary = "删除接口")
     @AuthCheck(mustRole = "admin")
-    public BaseResponse<Boolean> deleteInterfaceBasedOnID(Long interfaceID) {
-        return ResultUtil.success(interfaceInfoService.removeById(interfaceID));
+    public BaseResponse<Boolean> deleteInterfaceBasedOnID(DeleteRequest deleteRequest) {
+        return ResultUtil.success(interfaceInfoService.removeById(deleteRequest.getId()));
+    }
+
+    @DeleteMapping("/batchDeletion")
+    @Operation(summary = "批量删除接口")
+    @AuthCheck(mustRole = "admin")
+    public BaseResponse<Boolean> batchDeletion(@RequestParam List<Long> ids) {
+        return ResultUtil.success(interfaceInfoService.removeByIds(ids));
     }
 
     @PutMapping("/modifyInterfaceInformation")
@@ -86,14 +95,19 @@ public class InterfaceController {
         IPage<InterfaceInfo> page = new Page<>(current, pageSize);
         interfaceInfoService.page(page, interfaceInfoService.getQueryWrapper(interfaceQueryDto));
         List<InterfaceInfo> interfaceInfoList = page.getRecords();
-        List<Long> userIds = interfaceInfoList.stream().map(InterfaceInfo::getUserId).collect(Collectors.toList());
-        List<User> users = userService.listByIds(userIds);
-        List<InterfaceInfoVo> interfaceInfoVos = interfaceConverter.interfaceInfoVoConvert(interfaceInfoList);
-        interfaceInfoVos.forEach(interfaceInfoVo -> users.forEach(user -> {
-            if (interfaceInfoVo.getUserId().equals(user.getId())) {
-                interfaceInfoVo.setUserName(user.getUserName());
+        List<InterfaceInfoVo> interfaceInfoVos = new ArrayList<>();
+        if (interfaceInfoList != null && !interfaceInfoList.isEmpty()) {
+            List<Long> userIds = interfaceInfoList.stream().map(InterfaceInfo::getUserId).collect(Collectors.toList());
+            if (!userIds.isEmpty()) {
+                List<User> users = userService.listByIds(userIds);
+                interfaceInfoVos = interfaceConverter.interfaceInfoVoConvert(interfaceInfoList);
+                interfaceInfoVos.forEach(interfaceInfoVo -> users.forEach(user -> {
+                    if (interfaceInfoVo.getUserId().equals(user.getId())) {
+                        interfaceInfoVo.setUserName(user.getUserName());
+                    }
+                }));
             }
-        }));
+        }
         return ResultUtil.success(new Page<InterfaceInfoVo>(current, pageSize, page.getTotal())
                 .setRecords(interfaceInfoVos));
     }
