@@ -14,14 +14,14 @@ public class ResultUtil {
      * 成功
      */
     public static <T> BaseResponse<T> success(T data) {
-        return new BaseResponse<>(200, data, "ok");
+        return new BaseResponse<>(20000, data, "ok");
     }
 
     /**
      * 成功
      */
     public static <T> BaseResponse<T> success() {
-        return new BaseResponse<>(200, null, "ok");
+        return new BaseResponse<>(20000, null, "ok");
     }
 
     /**

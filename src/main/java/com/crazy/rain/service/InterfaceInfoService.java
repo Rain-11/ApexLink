@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.crazy.rain.model.dto.interface_info.InterfaceAddDto;
 import com.crazy.rain.model.dto.interface_info.InterfaceQueryDto;
+import com.crazy.rain.model.dto.interface_info.InterfaceUpdateDto;
 import com.crazy.rain.model.entity.InterfaceInfo;
 
 
@@ -22,4 +23,9 @@ public interface InterfaceInfoService extends IService<InterfaceInfo> {
     void addInterface(InterfaceAddDto interfaceAddDto);
 
     LambdaQueryWrapper<InterfaceInfo> getQueryWrapper(InterfaceQueryDto interfaceQueryDto);
+
+    /**
+     * 添加接口信息
+     */
+    Boolean modifyInterfaceInformation(InterfaceUpdateDto interfaceUpdateDto);
 }

@@ -5,7 +5,6 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.crazy.rain.annotation.AuthCheck;
 import com.crazy.rain.common.BaseResponse;
 import com.crazy.rain.common.ErrorCode;
-import com.crazy.rain.common.MethodEnum;
 import com.crazy.rain.common.ResultUtil;
 import com.crazy.rain.converter.InterfaceConverter;
 import com.crazy.rain.exception.ThrowUtils;
@@ -21,7 +20,6 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -63,13 +61,8 @@ public class InterfaceController {
     public BaseResponse<Boolean> modifyInterfaceInformation(@RequestBody InterfaceUpdateDto interfaceUpdateDto) {
         ThrowUtils.throwIf(interfaceUpdateDto == null || interfaceUpdateDto.getId() == null,
                 ErrorCode.NOT_FOUND_ERROR, "请求参数为空");
-        InterfaceInfo interfaceInfo = interfaceConverter.interfaceInfoConvert(interfaceUpdateDto);
-        String method = interfaceInfo.getMethod();
-        if (StringUtils.isNotBlank(method)) {
-            MethodEnum methodEnum = MethodEnum.valueOf(method.toUpperCase());
-            interfaceInfo.setMethod(methodEnum.getValue());
-        }
-        return ResultUtil.success(interfaceInfoService.updateById(interfaceInfo));
+
+        return ResultUtil.success(interfaceInfoService.modifyInterfaceInformation(interfaceUpdateDto));
     }
 
     @GetMapping("/queryInterfaceBasedOnID/{id}")

@@ -16,7 +16,7 @@ public class InterfaceInfo implements Serializable {
     /**
      * 接口id
      */
-    @TableId
+    @TableId(type = IdType.AUTO)
     private Long id;
 
     /**
