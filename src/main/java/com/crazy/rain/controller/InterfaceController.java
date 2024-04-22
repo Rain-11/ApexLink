@@ -3,14 +3,12 @@ package com.crazy.rain.controller;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.crazy.rain.annotation.AuthCheck;
-import com.crazy.rain.common.BaseResponse;
-import com.crazy.rain.common.DeleteRequest;
-import com.crazy.rain.common.ErrorCode;
-import com.crazy.rain.common.ResultUtil;
+import com.crazy.rain.common.*;
 import com.crazy.rain.converter.InterfaceConverter;
 import com.crazy.rain.exception.ThrowUtils;
 import com.crazy.rain.model.dto.interface_info.InterfaceAddDto;
 import com.crazy.rain.model.dto.interface_info.InterfaceQueryDto;
+import com.crazy.rain.model.dto.interface_info.InterfaceStatusDto;
 import com.crazy.rain.model.dto.interface_info.InterfaceUpdateDto;
 import com.crazy.rain.model.entity.InterfaceInfo;
 import com.crazy.rain.model.entity.User;
@@ -112,5 +110,26 @@ public class InterfaceController {
                 .setRecords(interfaceInfoVos));
     }
 
+    @PutMapping("/publishingInterface")
+    @Operation(summary = "上线接口")
+    @AuthCheck(mustRole = "admin")
+    public BaseResponse<Void> publishingInterface(@RequestBody InterfaceStatusDto interfaceQueryDto) {
+        InterfaceUpdateDto interfaceUpdateDto =  interfaceInfoService.verifyData(interfaceQueryDto);
+        interfaceUpdateDto.setStatus(InterfaceStatusEnum.START.getValue());
+        Boolean result = interfaceInfoService.modifyInterfaceInformation(interfaceUpdateDto);
+        ThrowUtils.throwIf(!result, ErrorCode.NOT_FOUND_ERROR, "接口id为空");
+        return ResultUtil.success();
+    }
+
+    @PostMapping("/offlineInterface")
+    @Operation(summary = "下线接口")
+    @AuthCheck(mustRole = "admin")
+    public BaseResponse<Void> offlineInterface(@RequestBody InterfaceStatusDto interfaceQueryDto) {
+        InterfaceUpdateDto interfaceUpdateDto =  interfaceInfoService.verifyData(interfaceQueryDto);
+        interfaceUpdateDto.setStatus(InterfaceStatusEnum.CLOSED.getValue());
+        Boolean result = interfaceInfoService.modifyInterfaceInformation(interfaceUpdateDto);
+        ThrowUtils.throwIf(!result, ErrorCode.NOT_FOUND_ERROR, "接口id为空");
+        return ResultUtil.success();
+    }
 
 }

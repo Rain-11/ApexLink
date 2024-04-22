@@ -11,6 +11,7 @@ import com.crazy.rain.exception.ThrowUtils;
 import com.crazy.rain.mapper.InterfaceInfoMapper;
 import com.crazy.rain.model.dto.interface_info.InterfaceAddDto;
 import com.crazy.rain.model.dto.interface_info.InterfaceQueryDto;
+import com.crazy.rain.model.dto.interface_info.InterfaceStatusDto;
 import com.crazy.rain.model.dto.interface_info.InterfaceUpdateDto;
 import com.crazy.rain.model.entity.InterfaceInfo;
 import com.crazy.rain.service.InterfaceInfoService;
@@ -87,7 +88,10 @@ public class InterfaceInfoServiceImpl extends ServiceImpl<InterfaceInfoMapper, I
     @Override
     public Boolean modifyInterfaceInformation(InterfaceUpdateDto interfaceUpdateDto) {
         InterfaceInfo interfaceInfo = interfaceConverter.interfaceInfoConvert(interfaceUpdateDto);
-        ThrowUtils.throwIf(interfaceInfo.getName().length() > 50, ErrorCode.PARAMS_ERROR, "接口名称过长");
+        String name = interfaceInfo.getName();
+        if(StringUtils.isNotBlank(name)){
+            ThrowUtils.throwIf( name.length() > 50, ErrorCode.PARAMS_ERROR, "接口名称过长");
+        }
         Integer status = interfaceInfo.getStatus();
         if (status != null) {
             InterfaceStatusEnum interfaceStatusEnum = InterfaceStatusEnum.getEnum(status);
@@ -99,6 +103,16 @@ public class InterfaceInfoServiceImpl extends ServiceImpl<InterfaceInfoMapper, I
             interfaceInfo.setMethod(methodEnum.getValue());
         }
         return this.updateById(interfaceInfo);
+    }
+
+    @Override
+    public InterfaceUpdateDto verifyData(InterfaceStatusDto interfaceQueryDto) {
+        ThrowUtils.throwIf(interfaceQueryDto == null, ErrorCode.NOT_FOUND_ERROR, "请求参数为空");
+        Long interfaceId = interfaceQueryDto.getId();
+        ThrowUtils.throwIf(interfaceId == null || interfaceId <= 0, ErrorCode.NOT_FOUND_ERROR, "接口id为空");
+        InterfaceUpdateDto interfaceUpdateDto = new InterfaceUpdateDto();
+        interfaceUpdateDto.setId(interfaceId);
+        return interfaceUpdateDto;
     }
 }
 
