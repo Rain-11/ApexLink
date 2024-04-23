@@ -18,11 +18,11 @@ knife4j:
 spring:
   mail:
     # 指定邮件服务器地址
-    host: smtp.163.com
+    host: smtp.qq.com
     # 登录账户
-    username: 17888791667@163.com
+    username: 1147932729@qq.com
     # 登录密码
-    password: "FNBJRUXZTKMREPUB"
+    password: "tbjcqizqulsojfhd"
     # 默认编码
     default-encoding: UTF-8
     # 使用的协议

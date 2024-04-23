@@ -8,8 +8,8 @@ import org.springframework.context.annotation.EnableAspectJAutoProxy;
 @SpringBootApplication
 @MapperScan("com.crazy.rain.mapper")
 @EnableAspectJAutoProxy(proxyTargetClass = true, exposeProxy = true)
-public class MainApplication {
+public class ApexLinkServerApplication {
     public static void main(String[] args) {
-        SpringApplication.run(MainApplication.class, args);
+        SpringApplication.run(ApexLinkServerApplication.class, args);
     }
 }

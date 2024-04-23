@@ -74,7 +74,7 @@
                 <artifactId>spring-boot-maven-plugin</artifactId>
                 <version>${spring-boot.version}</version>
                 <configuration>
-                    <mainClass>com.crazy.rain.MainApplication</mainClass>
+                    <mainClass>com.crazy.rain.ApexLinkServerApplication</mainClass>
                     <skip>true</skip>
                 </configuration>
                 <executions>
