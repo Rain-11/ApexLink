@@ -3,13 +3,15 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.crazy.rain</groupId>
-    <artifactId>springboot-init</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
+    <artifactId>ApexLink</artifactId>
+    <version>1.0</version>
     <packaging>pom</packaging>
-    <name>springboot-init</name>
-    <description>springboot-init</description>
+    <name>ApexLink</name>
+    <description>ApexLink</description>
     <modules>
         <module>ApexLinkServer</module>
+        <module>CommonApi</module>
+        <module>ApiInterface</module>
     </modules>
     <properties>
         <java.version>11</java.version>
