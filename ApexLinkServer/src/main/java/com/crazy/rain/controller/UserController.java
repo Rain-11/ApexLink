@@ -227,4 +227,12 @@ public class UserController {
         ThrowUtils.throwIf(StringUtils.isBlank(email), ErrorCode.NOT_FOUND_ERROR, "邮箱为空");
         return ResultUtil.success(userService.sendVerificationCode(email));
     }
+
+    @GetMapping("/forgotPassword")
+    @Operation(summary = "忘记密码")
+    public BaseResponse<Void> forgotPasswordDto(@RequestBody ForgotPasswordDto forgotPasswordDto) {
+        ThrowUtils.throwIf(forgotPasswordDto == null, ErrorCode.PARAMS_ERROR, "请求参数为空");
+        userService.ForgotPasswordDto(forgotPasswordDto);
+        return ResultUtil.success();
+    }
 }

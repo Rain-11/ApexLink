@@ -1,0 +1,15 @@
+spring:
+  cloud:
+    gateway:
+      routes:
+        - id: path_route
+          uri: http://localhost:8080
+          predicates:
+            - Path=/api/**
+          filters:
+            - StripPrefix=1
+  application:
+    name: apex-link-gateway
+
+server:
+  port: 9001

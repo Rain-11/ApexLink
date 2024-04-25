@@ -12,6 +12,7 @@
         <module>ApexLinkServer</module>
         <module>CommonApi</module>
         <module>ApiInterface</module>
+        <module>ApexLinkGateway</module>
     </modules>
     <properties>
         <java.version>11</java.version>
@@ -21,12 +22,21 @@
         <org.mapstruct.version>1.5.5.Final</org.mapstruct.version>
     </properties>
 
+
     <dependencyManagement>
         <dependencies>
             <dependency>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-dependencies</artifactId>
                 <version>${spring-boot.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+
+            <dependency>
+                <groupId>org.springframework.cloud</groupId>
+                <artifactId>spring-cloud-dependencies</artifactId>
+                <version>2021.0.5</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>

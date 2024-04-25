@@ -10,6 +10,7 @@ import com.crazy.rain.converter.UserConverter;
 import com.crazy.rain.exception.BusinessException;
 import com.crazy.rain.exception.ThrowUtils;
 import com.crazy.rain.mapper.UserMapper;
+import com.crazy.rain.model.dto.user.ForgotPasswordDto;
 import com.crazy.rain.model.dto.user.UserAddRequest;
 import com.crazy.rain.model.dto.user.UserQueryRequest;
 import com.crazy.rain.model.dto.user.UserUpdateMyRequest;
@@ -209,5 +210,20 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         ValueOperations<String, Object> stringObjectValueOperations = redisTemplate.opsForValue();
         stringObjectValueOperations.set(email, code, 5, TimeUnit.MINUTES);
         return code;
+    }
+
+    @Override
+    public void ForgotPasswordDto(ForgotPasswordDto forgotPasswordDto) {
+        String email = forgotPasswordDto.getEmail();
+        String userPassword = forgotPasswordDto.getUserPassword();
+        String verificationCode = forgotPasswordDto.getVerificationCode();
+        ThrowUtils.throwIf(StringUtils.isAnyBlank(email, userPassword, verificationCode), ErrorCode.PARAMS_ERROR, "请求参数为空");
+        Integer code = (Integer) redisTemplate.opsForValue().get(email);
+        ThrowUtils.throwIf(code == null, ErrorCode.SYSTEM_ERROR, "验证码不存在");
+        ThrowUtils.throwIf(verificationCode.equals(code.toString()), ErrorCode.PARAMS_ERROR, "验证码异常");
+        ThrowUtils.throwIf(userPassword.length() < 8, ErrorCode.PARAMS_ERROR, "新密码格式不正确");
+        User user = userConverter.forgotPasswordDtoConverter(forgotPasswordDto);
+        int insert = baseMapper.insert(user);
+        ThrowUtils.throwIf(insert != 1, ErrorCode.SYSTEM_ERROR, "修改密码失败,请联系管理员!");
     }
 }

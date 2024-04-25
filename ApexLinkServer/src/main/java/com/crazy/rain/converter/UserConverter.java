@@ -1,5 +1,6 @@
 package com.crazy.rain.converter;
 
+import com.crazy.rain.model.dto.user.ForgotPasswordDto;
 import com.crazy.rain.model.dto.user.UserAddRequest;
 import com.crazy.rain.model.dto.user.UserUpdateMyRequest;
 import com.crazy.rain.model.dto.user.UserUpdateRequest;
@@ -25,4 +26,6 @@ public interface UserConverter {
     LoginUserVO loginUserVOConverter(User user);
 
     UserVO userVOConverter(User user);
+
+    User forgotPasswordDtoConverter(ForgotPasswordDto forgotPasswordDto);
 }

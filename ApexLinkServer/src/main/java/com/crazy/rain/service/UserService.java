@@ -3,6 +3,7 @@ package com.crazy.rain.service;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.crazy.rain.model.dto.user.ForgotPasswordDto;
 import com.crazy.rain.model.dto.user.UserAddRequest;
 import com.crazy.rain.model.dto.user.UserQueryRequest;
 import com.crazy.rain.model.dto.user.UserUpdateMyRequest;
@@ -85,4 +86,11 @@ public interface UserService extends IService<User> {
      * @return 验证码
      */
     Integer sendVerificationCode(String email);
+
+    /**
+     * 忘记密码
+     * @param forgotPasswordDto 修改密码表单
+     */
+    void ForgotPasswordDto(ForgotPasswordDto forgotPasswordDto);
+
 }
