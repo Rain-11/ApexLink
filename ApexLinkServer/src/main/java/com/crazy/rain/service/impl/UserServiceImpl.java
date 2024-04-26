@@ -217,13 +217,18 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         String email = forgotPasswordDto.getEmail();
         String userPassword = forgotPasswordDto.getUserPassword();
         String verificationCode = forgotPasswordDto.getVerificationCode();
-        ThrowUtils.throwIf(StringUtils.isAnyBlank(email, userPassword, verificationCode), ErrorCode.PARAMS_ERROR, "请求参数为空");
+        ThrowUtils.throwIf(StringUtils.isAnyBlank(email, userPassword, verificationCode), ErrorCode.PARAMS_ERROR,
+                "请求参数为空");
         Integer code = (Integer) redisTemplate.opsForValue().get(email);
         ThrowUtils.throwIf(code == null, ErrorCode.SYSTEM_ERROR, "验证码不存在");
-        ThrowUtils.throwIf(verificationCode.equals(code.toString()), ErrorCode.PARAMS_ERROR, "验证码异常");
+        ThrowUtils.throwIf(!verificationCode.equals(String.valueOf(code)), ErrorCode.PARAMS_ERROR, "验证码异常");
         ThrowUtils.throwIf(userPassword.length() < 8, ErrorCode.PARAMS_ERROR, "新密码格式不正确");
+        forgotPasswordDto.setUserPassword(DigestUtils.md5DigestAsHex((SALT + userPassword).getBytes()));
         User user = userConverter.forgotPasswordDtoConverter(forgotPasswordDto);
-        int insert = baseMapper.insert(user);
+        LambdaQueryWrapper<User> userLambdaQueryWrapper = new LambdaQueryWrapper<>();
+        userLambdaQueryWrapper.eq(User::getEmail, email);
+        int insert = baseMapper.update(user, userLambdaQueryWrapper);
         ThrowUtils.throwIf(insert != 1, ErrorCode.SYSTEM_ERROR, "修改密码失败,请联系管理员!");
+        redisTemplate.delete(email);
     }
 }

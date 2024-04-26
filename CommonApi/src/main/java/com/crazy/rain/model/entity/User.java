@@ -40,6 +40,18 @@ public class User implements Serializable {
      */
     private String userProfile;
 
+
+    /**
+     * 签名秘钥
+     */
+    private String secretKey;
+
+
+    /**
+     * 签名id
+     */
+    private String secretId;
+
     /**
      * 用户角色：user/admin/ban
      */

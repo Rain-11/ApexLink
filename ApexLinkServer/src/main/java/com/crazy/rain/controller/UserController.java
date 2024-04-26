@@ -1,5 +1,6 @@
 package com.crazy.rain.controller;
 
+import cn.hutool.core.lang.UUID;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.crazy.rain.annotation.AuthCheck;
 import com.crazy.rain.common.BaseResponse;
@@ -13,17 +14,23 @@ import com.crazy.rain.exception.ThrowUtils;
 import com.crazy.rain.model.dto.user.*;
 import com.crazy.rain.model.entity.User;
 import com.crazy.rain.model.vo.LoginUserVO;
+import com.crazy.rain.model.vo.SignatureAuthenticationVo;
 import com.crazy.rain.model.vo.UserVO;
 import com.crazy.rain.service.UserService;
+import com.crazy.rain.utils.UserInfoUtil;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.util.DigestUtils;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;
+
+import static com.crazy.rain.constant.UserConstant.REQUEST_PARAMETER_IS_EMPTY;
 
 
 @RestController
@@ -36,6 +43,8 @@ public class UserController {
 
     private final UserService userService;
     private final UserConverter userConverter;
+
+    private final RedisTemplate<String, Object> redisTemplate;
 
 
     // region 登录相关
@@ -202,7 +211,6 @@ public class UserController {
         userVOPage.setRecords(userVO);
         return ResultUtil.success(userVOPage);
     }
-
     // endregion
 
     /**
@@ -228,11 +236,53 @@ public class UserController {
         return ResultUtil.success(userService.sendVerificationCode(email));
     }
 
-    @GetMapping("/forgotPassword")
+    @PostMapping("/forgotPassword")
     @Operation(summary = "忘记密码")
     public BaseResponse<Void> forgotPasswordDto(@RequestBody ForgotPasswordDto forgotPasswordDto) {
-        ThrowUtils.throwIf(forgotPasswordDto == null, ErrorCode.PARAMS_ERROR, "请求参数为空");
+        ThrowUtils.throwIf(forgotPasswordDto == null, ErrorCode.PARAMS_ERROR, REQUEST_PARAMETER_IS_EMPTY);
         userService.ForgotPasswordDto(forgotPasswordDto);
         return ResultUtil.success();
     }
+
+    @PostMapping("/changePassword")
+    @Operation(summary = "修改密码")
+    public BaseResponse<Void> changePassword(@RequestBody ChangePasswordDto changePasswordDto) {
+        ThrowUtils.throwIf(changePasswordDto == null, ErrorCode.PARAMS_ERROR, REQUEST_PARAMETER_IS_EMPTY);
+        String userPassword = changePasswordDto.getUserPassword();
+        String verifyPassword = changePasswordDto.getVerifyPassword();
+        String verificationCode = changePasswordDto.getVerificationCode();
+        ThrowUtils.throwIf(StringUtils.isAnyBlank(userPassword, verifyPassword, verificationCode),
+                ErrorCode.PARAMS_ERROR, REQUEST_PARAMETER_IS_EMPTY);
+        ThrowUtils.throwIf(!verifyPassword.equals(userPassword), ErrorCode.PARAMS_ERROR, "两次密码不一致");
+        String email = UserInfoUtil.getUserInfo().getEmail();
+        ThrowUtils.throwIf(!verificationCode.equals(String.valueOf(redisTemplate.opsForValue().get(email))),
+                ErrorCode.PARAMS_ERROR,
+                "验证码不正确");
+        ForgotPasswordDto forgotPasswordDto = new ForgotPasswordDto();
+        forgotPasswordDto.setEmail(email);
+        forgotPasswordDto.setUserPassword(userPassword);
+        forgotPasswordDto.setVerificationCode(verificationCode);
+        userService.ForgotPasswordDto(forgotPasswordDto);
+        return ResultUtil.success();
+    }
+
+    @GetMapping("/generateAccessKey")
+    @Operation(summary = "生成访问秘钥")
+    public BaseResponse<SignatureAuthenticationVo> generateAccessKey() {
+        User userInfo = UserInfoUtil.getUserInfo();
+        User user = userService.getById(userInfo.getId());
+        ThrowUtils.throwIf(!StringUtils.isAnyBlank(user.getSecretId(), user.getSecretKey()),
+                ErrorCode.SYSTEM_ERROR, "用户访问凭证已存在!,请联系管理员获取。");
+        String secretId = UUID.randomUUID().toString().replace("-", "");
+        SignatureAuthenticationVo signatureAuthenticationVo = new SignatureAuthenticationVo();
+        signatureAuthenticationVo.setSecretId(secretId);
+        String secretKey = DigestUtils.md5DigestAsHex((user.getEmail() + secretId).getBytes());
+        signatureAuthenticationVo.setSecretKey(secretKey);
+        user.setSecretKey(secretKey);
+        user.setSecretId(secretId);
+        boolean result = userService.updateById(user);
+        ThrowUtils.throwIf(!result, ErrorCode.SYSTEM_ERROR, "添加访问凭证失败");
+        return ResultUtil.success(signatureAuthenticationVo);
+    }
+
 }
