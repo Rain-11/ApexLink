@@ -45,4 +45,9 @@ public class InterfaceAddDto implements Serializable {
      * 请求方式
      */
     private String method;
+
+    /**
+     * 请求参数类型
+     */
+    private String requestDataType;
 }

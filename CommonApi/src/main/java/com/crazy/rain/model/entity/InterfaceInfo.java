@@ -7,10 +7,9 @@ import java.io.Serializable;
 import java.time.LocalDateTime;
 
 /**
- * 
  * @TableName interface_info
  */
-@TableName(value ="interface_info")
+@TableName(value = "interface_info")
 @Data
 public class InterfaceInfo implements Serializable {
     /**
@@ -65,6 +64,12 @@ public class InterfaceInfo implements Serializable {
      * 请求参数
      */
     private String params;
+
+
+    /**
+     * 请求数据类型
+     */
+    private String requestDataType;
 
     /**
      * 创建人

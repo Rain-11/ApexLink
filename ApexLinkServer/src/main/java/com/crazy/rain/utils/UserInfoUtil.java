@@ -28,6 +28,7 @@ public class UserInfoUtil {
     private static final HttpServletRequest request = ((ServletRequestAttributes) requestAttributes).getRequest();
 
     public static User getUserInfo() {
+        log.info("获取请求对象:{}", request);
         // 先判断是否已登录
         User currentUser = (User) request.getSession().getAttribute(USER_LOGIN_STATE);
         if (currentUser == null || currentUser.getId() == null) {
