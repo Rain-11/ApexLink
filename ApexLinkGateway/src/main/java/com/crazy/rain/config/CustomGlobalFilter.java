@@ -77,7 +77,7 @@ public class CustomGlobalFilter implements GlobalFilter, Ordered {
             body = queryParams.getFirst("username");
         }
 
-        if (StringUtils.isAnyBlank(secretId, nonce, timestamp, signed, body, method)) {
+        if (StringUtils.isAnyBlank(secretId, nonce, timestamp, signed, method)) {
             return errorInfo(exchange, "请求非法", 40000);
         }
 

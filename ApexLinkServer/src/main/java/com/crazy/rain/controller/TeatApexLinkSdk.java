@@ -2,6 +2,7 @@ package com.crazy.rain.controller;
 
 import cn.hutool.http.HttpResponse;
 import com.crazy.rain.common.ErrorCode;
+import com.crazy.rain.common.ResultUtil;
 import com.crazy.rain.config.ApexLinkClient;
 import com.crazy.rain.exception.ThrowUtils;
 import com.crazy.rain.model.dto.sdk.ExecutionGoalsDto;
@@ -23,7 +24,7 @@ import javax.annotation.Resource;
  * @date: 2024/4/28 上午8:29
  */
 @RestController
-@RequestMapping("/test")
+@RequestMapping("/invoke")
 @Slf4j
 @Tag(name = "测试sdk")
 public class TeatApexLinkSdk {
@@ -34,14 +35,24 @@ public class TeatApexLinkSdk {
     @Resource
     private InterfaceInfoService interfaceInfoService;
 
-    @PostMapping("/username")
-    public String test(@RequestBody ExecutionGoalsDto executionGoalsDto) {
+    @PostMapping("/handler")
+    public String invoke(@RequestBody ExecutionGoalsDto executionGoalsDto) {
         ThrowUtils.throwIf(executionGoalsDto == null, ErrorCode.PARAMS_ERROR, "未接收到请求参数");
         Long id = executionGoalsDto.getId();
         String body = executionGoalsDto.getBody();
         ThrowUtils.throwIf(id == null, ErrorCode.PARAMS_ERROR, "请求参数为空");
         InterfaceInfo interfaceInfo = interfaceInfoService.getById(executionGoalsDto.getId());
-        HttpResponse httpResponse = apexLinkClient.get(interfaceInfo.getUrl(), body, interfaceInfo.getHost());
+        HttpResponse httpResponse = null;
+        try {
+            httpResponse = apexLinkClient.invokeHandler(interfaceInfo.getUrl(),
+                    body, interfaceInfo.getHost(), interfaceInfo.getMethod());
+        } catch (Exception e) {
+            return ResultUtil.error(ErrorCode.SYSTEM_ERROR).toString();
+        } finally {
+            if (httpResponse != null) {
+                httpResponse.close();
+            }
+        }
         return httpResponse.body();
     }
 }

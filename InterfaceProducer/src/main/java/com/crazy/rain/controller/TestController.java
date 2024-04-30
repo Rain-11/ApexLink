@@ -26,4 +26,14 @@ public class TestController {
         return ResultUtil.success(username);
     }
 
+    /**
+     * 返回随机数
+     *
+     * @return 随机数
+     */
+    @GetMapping("/getRandomNumbers")
+    public BaseResponse<String> getRandomNumbers() {
+        return ResultUtil.success(String.valueOf(Math.random()));
+    }
+
 }

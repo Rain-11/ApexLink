@@ -1,6 +1,7 @@
 package com.crazy.rain.common;
 
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.io.Serializable;
 
@@ -9,7 +10,8 @@ import java.io.Serializable;
  * @Description: 通用返回结果
  * @author: CrazyRain
  */
-@Data
+@Getter
+@Setter
 public class BaseResponse<T> implements Serializable {
 
     private int code;
@@ -30,5 +32,14 @@ public class BaseResponse<T> implements Serializable {
 
     public BaseResponse(ErrorCode errorCode) {
         this(errorCode.getCode(), null, errorCode.getMessage());
+    }
+
+    @Override
+    public String toString() {
+        return "{" +
+                "code=" + code +
+                ", data=" + data +
+                ", message='" + message + '\'' +
+                '}';
     }
 }

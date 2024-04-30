@@ -47,6 +47,24 @@ public class ApexLinkClient {
     }
 
 
+    public HttpResponse invokeHandler(String uri, String body, String host, String method) {
+        if (method.isBlank()) {
+            throw new RuntimeException("请求方式为空");
+        }
+        switch (method) {
+            case "GET":
+                return get(uri, body, host);
+            case "POST":
+                return post(uri, body, host);
+            case "PUT":
+                return put(uri, body, host);
+            case "DELETE":
+                return delete(uri, body, host);
+        }
+        throw new RuntimeException("请求处理异常");
+    }
+
+
     public HttpResponse get(String uri, String body, String host) {
         Map<String, String> headers = getHeaders(body, "GET", host);
         HashMap params = new HashMap();
