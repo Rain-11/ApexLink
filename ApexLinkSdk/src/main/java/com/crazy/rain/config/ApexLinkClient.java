@@ -6,6 +6,7 @@ import cn.hutool.crypto.asymmetric.Sign;
 import cn.hutool.crypto.asymmetric.SignAlgorithm;
 import cn.hutool.http.HttpRequest;
 import cn.hutool.http.HttpResponse;
+import cn.hutool.json.JSONUtil;
 import lombok.Data;
 
 import java.util.Arrays;
@@ -21,29 +22,18 @@ import java.util.Map;
 @Data
 public class ApexLinkClient {
 
-    private static final String HOST = "http://localhost:9001/api-consumer";
 
     private String secretId;
 
     private String secretKey;
-
-    public ApexLinkClient() {
-    }
 
     public ApexLinkClient(String secretId, String secretKey) {
         this.secretId = secretId;
         this.secretKey = secretKey;
     }
 
-    public HttpResponse getUserName(String body) {
-        Map<String, String> headers = getHeaders(body, "GET",HOST);
-        return HttpRequest.get(HOST + "/test/getUserName")
-                .addHeaders(headers)
-                .form("username", body)
-                .execute();
-    }
 
-    private Map<String, String> getHeaders(String body, String method,String host) {
+    private Map<String, String> getHeaders(String body, String method, String host) {
         HashMap<String, String> stringObjectsHashMap = new HashMap<>();
         stringObjectsHashMap.put("X-secretId", secretId);
         stringObjectsHashMap.put("X-nonce", RandomUtil.randomNumbers(4));
@@ -56,5 +46,41 @@ public class ApexLinkClient {
         return stringObjectsHashMap;
     }
 
+
+    public HttpResponse get(String uri, String body, String host) {
+        Map<String, String> headers = getHeaders(body, "GET", host);
+        HashMap params = new HashMap();
+        if (body != null && !body.isEmpty()) {
+            params = JSONUtil.parse(body).toBean(HashMap.class);
+        }
+        return HttpRequest.get(host + uri)
+                .addHeaders(headers)
+                .form(params)
+                .execute();
+    }
+
+    public HttpResponse post(String uri, String body, String host) {
+        Map<String, String> headers = getHeaders(body, "POST", host);
+        return HttpRequest.post(host + uri)
+                .addHeaders(headers)
+                .body(JSONUtil.toJsonStr(body))
+                .execute();
+    }
+
+    public HttpResponse delete(String uri, String body, String host) {
+        Map<String, String> headers = getHeaders(body, "DELETE", host);
+        return HttpRequest.delete(host + uri)
+                .addHeaders(headers)
+                .body(JSONUtil.toJsonStr(body))
+                .execute();
+    }
+
+    public HttpResponse put(String uri, String body, String host) {
+        Map<String, String> headers = getHeaders(body, "PUT", host);
+        return HttpRequest.put(host + uri)
+                .addHeaders(headers)
+                .body(JSONUtil.toJsonStr(body))
+                .execute();
+    }
 
 }
