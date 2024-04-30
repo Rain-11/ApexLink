@@ -42,6 +42,11 @@ public class InterfaceUpdateDto implements Serializable {
     private String responseHeader;
 
     /**
+     * 请求参数
+     */
+    private String params;
+
+    /**
      * 请求方式
      */
     private String method;

@@ -2,10 +2,10 @@ spring:
   cloud:
     gateway:
       routes:
-        - id: path_route
-          uri: http://localhost:8080
+        - id: api-producer
+          uri: http://localhost:8081
           predicates:
-            - Path=/api/**
+            - Path=/api-consumer/**
           filters:
             - StripPrefix=1
   application:
@@ -13,3 +13,11 @@ spring:
 
 server:
   port: 9001
+
+
+dubbo:
+  application:
+    name: spring-boot-consumer
+  registry:
+    address: nacos://192.168.254.1:8848
+    parameters.register-consumer-url: true

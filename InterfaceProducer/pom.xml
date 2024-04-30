@@ -9,13 +9,14 @@
         <version>1.0</version>
     </parent>
 
-    <artifactId>ApiInterface</artifactId>
+    <artifactId>InterfaceProducer</artifactId>
 
     <properties>
         <maven.compiler.source>11</maven.compiler.source>
         <maven.compiler.target>11</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
+
     <dependencies>
         <dependency>
             <groupId>com.crazy.rain</groupId>
@@ -23,5 +24,8 @@
             <version>1.0</version>
             <scope>compile</scope>
         </dependency>
+
+
     </dependencies>
+
 </project>

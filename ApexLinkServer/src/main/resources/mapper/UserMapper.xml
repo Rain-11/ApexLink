@@ -12,6 +12,7 @@
         <result property="secretKey" column="secret_key" jdbcType="VARCHAR"/>
         <result property="userRole" column="user_role" jdbcType="VARCHAR"/>
         <result property="email" column="email" jdbcType="VARCHAR"/>
+        <result property="wallet" column="wallet"/>
         <result property="createTime" column="create_time"/>
         <result property="updateTime" column="update_time"/>
         <result property="isDelete" column="is_delete" jdbcType="TINYINT"/>

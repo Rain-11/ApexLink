@@ -25,6 +25,11 @@ public class UserVO implements Serializable {
     private String userName;
 
     /**
+     * 钱包金额
+     */
+    private Integer wallet;
+
+    /**
      * 用户头像
      */
     private String userAvatar;

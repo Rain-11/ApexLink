@@ -41,6 +41,11 @@ public class LoginUserVO implements Serializable {
     private String userRole;
 
     /**
+     * 钱包金额
+     */
+    private Integer wallet;
+
+    /**
      * 创建时间
      */
     private Date createTime;

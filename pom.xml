@@ -11,8 +11,9 @@
     <modules>
         <module>ApexLinkServer</module>
         <module>CommonApi</module>
-        <module>ApiInterface</module>
         <module>ApexLinkGateway</module>
+        <module>InterfaceProducer</module>
+        <module>ApexLinkSdk</module>
     </modules>
     <properties>
         <java.version>11</java.version>
