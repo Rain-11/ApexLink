@@ -32,6 +32,7 @@ import org.springframework.util.DigestUtils;
 import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
@@ -79,6 +80,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
             String encryptPassword = DigestUtils.md5DigestAsHex((SALT + userPassword).getBytes());
             // 3. 插入数据
             User user = new User();
+            user.setUserName(String.valueOf(UUID.randomUUID().getLeastSignificantBits()));
             user.setEmail(email);
             user.setUserPassword(encryptPassword);
             boolean saveResult = this.save(user);

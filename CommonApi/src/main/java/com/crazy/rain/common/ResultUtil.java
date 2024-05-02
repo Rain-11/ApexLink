@@ -25,6 +25,13 @@ public class ResultUtil {
     }
 
     /**
+     * 成功
+     */
+    public static <T> BaseResponse<T> success(int code, String msg, T data) {
+        return new BaseResponse<>(code, data, msg);
+    }
+
+    /**
      * 失败
      */
     public static BaseResponse<Void> error(ErrorCode errorCode) {

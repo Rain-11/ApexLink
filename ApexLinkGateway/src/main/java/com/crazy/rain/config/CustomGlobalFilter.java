@@ -21,14 +21,11 @@ import org.springframework.core.io.buffer.DataBuffer;
 import org.springframework.core.io.buffer.DataBufferFactory;
 import org.springframework.core.io.buffer.DataBufferUtils;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.http.server.reactive.ServerHttpResponse;
 import org.springframework.http.server.reactive.ServerHttpResponseDecorator;
-import org.springframework.util.MultiValueMap;
-import org.springframework.util.StopWatch;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -46,13 +43,11 @@ public class CustomGlobalFilter implements GlobalFilter, Ordered {
     @DubboReference
     private InterfaceDetailsInterface interfaceDetailsInterface;
 
+
     private static final Logger log = LoggerFactory.getLogger(CustomGlobalFilter.class);
 
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
-        //开启性能分析
-        StopWatch stopWatch = new StopWatch();
-        stopWatch.start();
 
         //记录请求日志
         ServerHttpRequest request = exchange.getRequest();
@@ -69,12 +64,25 @@ public class CustomGlobalFilter implements GlobalFilter, Ordered {
         String signed = headers.getFirst("X-sign");
         String method = headers.getFirst("X-method");
         String host = headers.getFirst("X-host");
-        String body = "";
+        String body = headers.getFirst("X-body");
 
+        if (StringUtils.isAnyBlank(secretId, nonce, timestamp, method, host)) {
+            return errorInfo(exchange, "参数不存在", 40000);
+        }
 
-        if (HttpMethod.GET.matches(methodValue)) {
-            MultiValueMap<String, String> queryParams = request.getQueryParams();
-            body = queryParams.getFirst("username");
+        final long timeoutTime = 60 * 5;
+
+        if (timestamp != null && System.currentTimeMillis() / 1000 - Long.parseLong(timestamp) > timeoutTime) {
+            return errorInfo(exchange, "签名已过期", 40000);
+        }
+
+        String randomNumberCache = interfaceDetailsInterface.getRandomNumberCache(nonce + secretId);
+        if (StringUtils.isNotBlank(randomNumberCache)) {
+            return errorInfo(exchange, "签名已过期", 40000);
+        }
+
+        if (StringUtils.isBlank(randomNumberCache)) {
+            interfaceDetailsInterface.cacheRandomNumbers(nonce + secretId, nonce);
         }
 
         if (StringUtils.isAnyBlank(secretId, nonce, timestamp, signed, method)) {
@@ -104,10 +112,6 @@ public class CustomGlobalFilter implements GlobalFilter, Ordered {
         if (interfaceInfo == null) {
             return errorInfo(exchange, "接口不存在", 40400);
         }
-        //关闭性能分析器
-        stopWatch.stop();
-        log.info("request end id:{}, Time-consuming:{} ms", requestId, stopWatch.getTotalTimeMillis());
-
 
         return handleResponse(exchange, chain, interfaceInfo.getId(), user.getId());
     }

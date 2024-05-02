@@ -14,7 +14,6 @@ spring:
 server:
   port: 9001
 
-
 dubbo:
   application:
     name: spring-boot-consumer

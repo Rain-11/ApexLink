@@ -9,8 +9,10 @@ import com.crazy.rain.service.InterfaceCallRecordService;
 import com.crazy.rain.service.InterfaceInfoService;
 import com.crazy.rain.service.UserService;
 import org.apache.dubbo.config.annotation.DubboService;
+import org.springframework.data.redis.core.RedisTemplate;
 
 import javax.annotation.Resource;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @ClassName: interfaceDetailsInterfaceImp
@@ -30,6 +32,9 @@ public class InterfaceDetailsInterfaceImp implements InterfaceDetailsInterface {
 
     @Resource
     private UserService userService;
+
+    @Resource
+    private RedisTemplate<String, Object> redisTemplate;
 
     @Override
     public InterfaceInfo verifyIfItExists(String path, String host, String method) {
@@ -63,5 +68,15 @@ public class InterfaceDetailsInterfaceImp implements InterfaceDetailsInterface {
             return true;
         }
         return false;
+    }
+
+    @Override
+    public String getRandomNumberCache(String key) {
+        return (String) redisTemplate.opsForValue().get(key);
+    }
+
+    @Override
+    public void cacheRandomNumbers(String key, Object value) {
+        redisTemplate.opsForValue().set(key, value,5, TimeUnit.MINUTES);
     }
 }

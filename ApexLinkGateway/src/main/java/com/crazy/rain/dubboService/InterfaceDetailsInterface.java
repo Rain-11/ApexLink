@@ -8,4 +8,8 @@ public interface InterfaceDetailsInterface {
 
     boolean increaseNumberCalls(Long interfaceId, Long id);
 
+    String getRandomNumberCache(String key);
+
+    void cacheRandomNumbers(String key, Object value);
+
 }

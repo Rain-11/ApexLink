@@ -1,6 +1,8 @@
 package com.crazy.rain.controller;
 
 import cn.hutool.http.HttpResponse;
+import cn.hutool.json.JSONUtil;
+import com.crazy.rain.common.BaseResponse;
 import com.crazy.rain.common.ErrorCode;
 import com.crazy.rain.common.ResultUtil;
 import com.crazy.rain.config.ApexLinkClient;
@@ -36,7 +38,7 @@ public class TeatApexLinkSdk {
     private InterfaceInfoService interfaceInfoService;
 
     @PostMapping("/handler")
-    public String invoke(@RequestBody ExecutionGoalsDto executionGoalsDto) {
+    public BaseResponse invoke(@RequestBody ExecutionGoalsDto executionGoalsDto) {
         ThrowUtils.throwIf(executionGoalsDto == null, ErrorCode.PARAMS_ERROR, "未接收到请求参数");
         Long id = executionGoalsDto.getId();
         String body = executionGoalsDto.getBody();
@@ -47,12 +49,12 @@ public class TeatApexLinkSdk {
             httpResponse = apexLinkClient.invokeHandler(interfaceInfo.getUrl(),
                     body, interfaceInfo.getHost(), interfaceInfo.getMethod());
         } catch (Exception e) {
-            return ResultUtil.error(ErrorCode.SYSTEM_ERROR).toString();
+            return ResultUtil.error(ErrorCode.SYSTEM_ERROR);
         } finally {
             if (httpResponse != null) {
                 httpResponse.close();
             }
         }
-        return httpResponse.body();
+        return JSONUtil.toBean(httpResponse.body(), BaseResponse.class);
     }
 }

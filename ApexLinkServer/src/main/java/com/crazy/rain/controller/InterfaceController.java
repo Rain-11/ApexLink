@@ -74,14 +74,12 @@ public class InterfaceController {
 
     @GetMapping("/queryInterfaceBasedOnID/{id}")
     @Operation(summary = "根据id获取接口信息")
-    @AuthCheck(mustRole = "admin")
     public BaseResponse<InterfaceInfoVo> queryInterfaceBasedOnID(@PathVariable("id") String id) {
         return ResultUtil.success(interfaceConverter.interfaceInfoVoConvert(interfaceInfoService.getById(id)));
     }
 
     @PostMapping("/pagingQueryInterfaceInformation")
     @Operation(summary = "分页查询接口信息")
-    @AuthCheck(mustRole = "admin")
     public BaseResponse<Page<InterfaceInfoVo>> pagingQueryInterfaceInformation(@RequestBody InterfaceQueryDto interfaceQueryDto) {
         ThrowUtils.throwIf(interfaceQueryDto == null, ErrorCode.NOT_FOUND_ERROR, "请求参数为空");
         int pageSize = interfaceQueryDto.getPageSize();

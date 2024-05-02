@@ -14,6 +14,7 @@ import com.crazy.rain.model.dto.interface_info.InterfaceQueryDto;
 import com.crazy.rain.model.dto.interface_info.InterfaceStatusDto;
 import com.crazy.rain.model.dto.interface_info.InterfaceUpdateDto;
 import com.crazy.rain.model.entity.InterfaceInfo;
+import com.crazy.rain.model.enums.InterfaceRequestDataTypeEnum;
 import com.crazy.rain.service.InterfaceInfoService;
 import com.crazy.rain.utils.SqlUtils;
 import com.crazy.rain.utils.UserInfoUtil;
@@ -45,7 +46,9 @@ public class InterfaceInfoServiceImpl extends ServiceImpl<InterfaceInfoMapper, I
         String method = interfaceAddDto.getMethod();
         MethodEnum methodEnum = MethodEnum.valueOf(method.toUpperCase());
         InterfaceInfo interfaceInfo = interfaceConverter.interfaceInfoConvert(interfaceAddDto);
+        InterfaceRequestDataTypeEnum interfaceRequestDataTypeEnum = InterfaceRequestDataTypeEnum.valueOf(interfaceInfo.getRequestDataType());
         interfaceInfo.setMethod(methodEnum.getValue());
+        interfaceInfo.setRequestDataType(interfaceRequestDataTypeEnum.getRequestDataType());
         interfaceInfo.setUserId(UserInfoUtil.getUserInfo().getId());
         boolean result = save(interfaceInfo);
         ThrowUtils.throwIf(!result, ErrorCode.SYSTEM_ERROR, "添加接口信息失败");
@@ -89,8 +92,8 @@ public class InterfaceInfoServiceImpl extends ServiceImpl<InterfaceInfoMapper, I
     public Boolean modifyInterfaceInformation(InterfaceUpdateDto interfaceUpdateDto) {
         InterfaceInfo interfaceInfo = interfaceConverter.interfaceInfoConvert(interfaceUpdateDto);
         String name = interfaceInfo.getName();
-        if(StringUtils.isNotBlank(name)){
-            ThrowUtils.throwIf( name.length() > 50, ErrorCode.PARAMS_ERROR, "接口名称过长");
+        if (StringUtils.isNotBlank(name)) {
+            ThrowUtils.throwIf(name.length() > 50, ErrorCode.PARAMS_ERROR, "接口名称过长");
         }
         Integer status = interfaceInfo.getStatus();
         if (status != null) {
