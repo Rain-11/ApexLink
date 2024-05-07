@@ -20,9 +20,9 @@ spring:
     # 指定邮件服务器地址
     host: smtp.qq.com
     # 登录账户
-    username: 1147932729@qq.com
+    username: "*****"
     # 登录密码
-    password: "tbjcqizqulsojfhd"
+    password: "*****"
     # 默认编码
     default-encoding: UTF-8
     # 使用的协议
